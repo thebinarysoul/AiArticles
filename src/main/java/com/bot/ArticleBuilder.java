@@ -1,18 +1,9 @@
 package com.bot;
 
 import com.bot.sites.Site;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
+import com.google.common.reflect.ClassPath;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,12 +21,12 @@ public class ArticleBuilder {
         initSiteList();
         sites.stream().forEach(s -> System.out.println(s.getClass().getSimpleName()));
 
-        for (Site site : sites) {
-            Article article = site.getArticles().get(0);
+        sites.forEach(s -> {
+            Article article = s.getArticles().get(0);
             if (!store.hasArticle(article) && articles.size() < 10) {
                 articles.add(article);
             }
-        }
+        });
 
         if (articles.size() == 0)
             return null;
@@ -55,20 +46,19 @@ public class ArticleBuilder {
     }
 
     private void initSiteList() {
-        InputStream in = ArticleBuilder.class.getResourceAsStream("/sitelist.xml");
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        try {
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            Document document = builder.parse(in);
-            NodeList nodes = document.getElementsByTagName("class");
+        final ClassLoader loader = Thread.currentThread().getContextClassLoader();
 
-            for (int i = 0; i < nodes.getLength(); i++) {
-                String name = "com.bot.sites." + nodes.item(i).getTextContent();
-                Site site = (Site) Site.class.forName(name).newInstance();
-                sites.add(site);
+        try {
+            for (final ClassPath.ClassInfo info : ClassPath.from(loader).getTopLevelClasses()) {
+                if (info.getName().startsWith("com.bot.sites")) {
+                    final Class clazz = info.load();
+                    if(!clazz.getSimpleName().equals("Site")) {
+                        sites.add((Site) clazz.newInstance());
+                    }
+                }
             }
-        } catch (Throwable e) {
-            System.out.println(e);
+        } catch (IOException | InstantiationException | IllegalAccessException e) {
+            e.printStackTrace();
         }
     }
 }
