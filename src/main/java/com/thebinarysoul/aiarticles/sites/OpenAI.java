@@ -1,6 +1,6 @@
-package com.bot.sites;
+package com.thebinarysoul.aiarticles.sites;
 
-import com.bot.Article;
+import com.thebinarysoul.aiarticles.Article;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;

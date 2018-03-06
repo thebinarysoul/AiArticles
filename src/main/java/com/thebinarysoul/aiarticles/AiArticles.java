@@ -1,4 +1,4 @@
-package com.bot;
+package com.thebinarysoul.aiarticles;
 
 import org.telegram.telegrambots.TelegramBotsApi;
 import org.telegram.telegrambots.api.objects.Update;

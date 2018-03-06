@@ -1,4 +1,4 @@
-package com.bot;
+package com.thebinarysoul.aiarticles;
 
 import java.io.*;
 import java.sql.DriverManager;

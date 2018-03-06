@@ -1,4 +1,4 @@
-package com.bot;
+package com.thebinarysoul.aiarticles;
 
 public class Initializer implements Runnable{
     private static String msg = "";

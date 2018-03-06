@@ -1,6 +1,6 @@
-package com.bot;
+package com.thebinarysoul.aiarticles;
 
-import com.bot.sites.Site;
+import com.thebinarysoul.aiarticles.sites.Site;
 import com.google.common.reflect.ClassPath;
 
 import java.io.IOException;
@@ -50,7 +50,7 @@ public class ArticleBuilder {
 
         try {
             for (final ClassPath.ClassInfo info : ClassPath.from(loader).getTopLevelClasses()) {
-                if (info.getName().startsWith("com.bot.sites")) {
+                if (info.getName().startsWith("com.thebinarysoul.aiarticles.sites")) {
                     final Class clazz = info.load();
                     if(!clazz.getSimpleName().equals("Site")) {
                         sites.add((Site) clazz.newInstance());

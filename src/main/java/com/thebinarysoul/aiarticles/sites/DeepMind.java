@@ -1,4 +1,4 @@
-package com.bot.sites;
+package com.thebinarysoul.aiarticles.sites;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -8,7 +8,7 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.util.List;
 
-import com.bot.Article;
+import com.thebinarysoul.aiarticles.Article;
 
 public class DeepMind extends Site {
     @Override
