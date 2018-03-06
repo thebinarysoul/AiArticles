@@ -1,12 +1,14 @@
 package com.thebinarysoul.aiarticles;
 
-import com.thebinarysoul.aiarticles.sites.Site;
 import com.google.common.reflect.ClassPath;
+import com.thebinarysoul.aiarticles.sites.Site;
+import io.vavr.control.Try;
+import lombok.extern.slf4j.Slf4j;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 public class ArticleBuilder {
     private List<Article> articles = new ArrayList<>();
     private List<Site> sites = new ArrayList<>();
@@ -28,8 +30,7 @@ public class ArticleBuilder {
             }
         });
 
-        if (articles.size() == 0)
-            return null;
+        if (articles.isEmpty()) return null;
 
         store.save();
 
@@ -46,19 +47,20 @@ public class ArticleBuilder {
     }
 
     private void initSiteList() {
-        final ClassLoader loader = Thread.currentThread().getContextClassLoader();
-
-        try {
-            for (final ClassPath.ClassInfo info : ClassPath.from(loader).getTopLevelClasses()) {
-                if (info.getName().startsWith("com.thebinarysoul.aiarticles.sites")) {
-                    final Class clazz = info.load();
-                    if(!clazz.getSimpleName().equals("Site")) {
-                        sites.add((Site) clazz.newInstance());
-                    }
-                }
-            }
-        } catch (IOException | InstantiationException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
+        Try.run(() -> ClassPath.from(Thread.currentThread().getContextClassLoader()).getTopLevelClasses()
+                .stream()
+                .filter(info -> info.getName().startsWith("com.thebinarysoul.aiarticles.sites"))
+                .map(ClassPath.ClassInfo::load)
+                .filter(c -> c.getSimpleName().equals("Site"))
+                .forEach(c ->
+                        Try.of(() -> sites.add((Site) c.newInstance()))
+                                .onFailure(e -> {
+                                    log.error("Error occurred during sites initialization, Exception: {}", e);
+                                    throw new RuntimeException();
+                                })
+                )).onFailure(e -> {
+            log.error("Error occurred during sites initialization, Exception: {} ", e);
+            throw new RuntimeException();
+        });
     }
 }
