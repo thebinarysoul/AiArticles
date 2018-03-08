@@ -1,94 +1,92 @@
 package com.thebinarysoul.aiarticles;
 
-import org.telegram.telegrambots.TelegramBotsApi;
+import io.vavr.Tuple;
+import io.vavr.control.Try;
+import lombok.NonNull;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.exceptions.TelegramApiException;
-import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
-import org.telegram.telegrambots.ApiContextInitializer;
 
-import java.io.*;
 import java.util.List;
-import java.util.Properties;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.stream.Collectors;
 
+@Slf4j
 public class AiArticles extends TelegramLongPollingBot {
-    private static String msg = "";
-    private Properties properties;
-    private ArticleStore store;
+    private volatile String message = null;
+    private final String token;
+    private final String username;
+    private final ExecutorService executorService;
+    private final DataTransfer data;
+    @Setter
+    @NonNull
+    private Map<String, Command> commands;
 
-    public AiArticles() {
-        InputStream in;
-        try {
-            in = getClass().getResourceAsStream("/config.properties");
-            properties = new Properties();
-            properties.load(in);
-            store = new ArticleStore();
-        } catch (FileNotFoundException noFile) {
-            //TODO: need to make logging (slf4j/log4j)
-            System.out.println("File Is Not Found");
-        } catch (IOException ioe) {
-           //TODO Here should be logging
-        }
+    public AiArticles(String token, String username, ExecutorService executorService, DataTransfer data) {
+        this.token = token;
+        this.username = username;
+        this.executorService = executorService;
+        this.data = data;
     }
 
-    public static void main(String[] args) {
-        ApiContextInitializer.init();
-        AiArticles bot = new AiArticles();
-        TelegramBotsApi telegramBotsApi = new TelegramBotsApi();
+    void init(String message) {
+        List<String> users = data.getUsers().stream()
+                .map(String::valueOf)
+                .collect(Collectors.toList());
 
-        try {
-            telegramBotsApi.registerBot(bot);
-        } catch (TelegramApiException e) {
-           //TODO Here should be logging
-           //TODO Here should be logging
+        if(message == null){
+            users.forEach(user -> send(user, "Today no articles : ("));
+        } else {
+            users.forEach(this::send);
         }
 
-        ScheduledExecutorService sheduler = Executors.newSingleThreadScheduledExecutor();
-        sheduler.scheduleAtFixedRate(Initializer.init(bot, bot.store), 0, 1, TimeUnit.DAYS);
     }
 
-    void start(List<String> users, String message) {
-        msg = message;
-        for (String s : users)
-            send(s, msg);
-    }
-
-    public String getBotUsername() {
-        return properties.getProperty("name");
-    }
-
-    public String getBotToken() {
-        return properties.getProperty("token");
-    }
-
+    @Override
     public void onUpdateReceived(Update update) {
-        Message message = update.getMessage();
-        if (message != null && message.hasText()) {
-            if (message.getText().equals("/start")) {
-                if(!store.addUser(message.getChatId())) {
-                    send(message.getChatId().toString(), "Вас приветствует AiArticlesBot. Ежедневно вы будете получать подборку статей посвещенных вопросам искусственного интеллекта и машинного обучения. приятного чтения");
-                    send(message.getChatId().toString(), msg);
-                }
-            }
+        executorService.submit(() ->
+                Optional.of(update.getMessage())
+                        .filter(Message::hasText)
+                        .map(m -> Tuple.of(m.getChatId(), m.getText()))
+                        .filter(t -> commands.containsKey(t._2))
+                        .ifPresent(t -> {
+                            data.addUser(t._1);
+                            commands.get(t._2).execute(String.valueOf(t._1));
+                        }));
+    }
+
+
+    @Override
+    public String getBotUsername() {
+        return username;
+    }
+
+    @Override
+    public String getBotToken() {
+        return token;
+    }
+    public synchronized void send(String chatId) {
+        if(message != null && !message.isEmpty()) {
+            send(chatId, message);
+        } else {
+            send(chatId, "Sorry, but the articles are not ready yet.");
         }
     }
 
-    private void send(String chatId, String text) {
+
+    public synchronized void send(String chatId, String text) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.enableMarkdown(false);
         sendMessage.disableWebPagePreview();
         sendMessage.setChatId(chatId);
         sendMessage.setText(text);
-        try {
-            sendMessage(sendMessage);
-        } catch (TelegramApiException e) {
-           //TODO Here should be logging
-           //TODO Here should be logging
-        }
-    }
 
+        Try.of(() -> sendMessage(sendMessage))
+                .onFailure(e -> log.error("Error occurred sending of the message, Error: {}", e));
+    }
 }

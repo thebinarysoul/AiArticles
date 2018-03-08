@@ -19,7 +19,14 @@ public class UsersDAOImpl implements UsersDao {
 
     @Override
     public void save(Long userId) {
-
+        try(Connection connection = dataSource.getConnection();
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO users (chat_id) VALUE (?)")) {
+            statement.setObject(1, userId);
+            statement.execute();
+        } catch (SQLException e){
+            log.error("Problems with connection: ", e);
+            throw new RuntimeException();
+        }
     }
 
     @Override

@@ -2,7 +2,7 @@ package com.thebinarysoul.aiarticles;
 
 import com.thebinarysoul.aiarticles.dao.ArticlesDao;
 import com.thebinarysoul.aiarticles.dao.UsersDao;
-import io.vavr.collection.Stream;
+import io.vavr.control.Option;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,14 +27,12 @@ public class DataTransfer {
         return articlesDao.read(article);
     }
 
-    public void addUser(long id) {
-        Stream.ofAll(usersDao.readAll())
-                .find(u -> u == id)
-                .onEmpty(() -> usersDao.save(id));
+    public synchronized void addUser(long id) {
+        if (!usersDao.read(id).isPresent())
+            usersDao.save(id);
     }
 
     public List<Long> getUsers() {
         return usersDao.readAll();
     }
-
 }
