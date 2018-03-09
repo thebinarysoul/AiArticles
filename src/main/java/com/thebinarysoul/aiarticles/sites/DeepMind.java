@@ -1,5 +1,6 @@
 package com.thebinarysoul.aiarticles.sites;
 
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -10,6 +11,7 @@ import java.util.List;
 
 import com.thebinarysoul.aiarticles.Article;
 
+@Slf4j
 public class DeepMind extends Site {
     @Override
     public List<Article> getArticles() {
@@ -23,8 +25,8 @@ public class DeepMind extends Site {
                 list.add(new Article(title, "https://deepmind.com" + url));
 
 
-        } catch (IOException ioe) {
-            System.out.println("Failed connection");
+        } catch (Throwable e) {
+            log.error("Failed parsing https://deepmind.com/blog/: ", e);
         }
         return list;
     }

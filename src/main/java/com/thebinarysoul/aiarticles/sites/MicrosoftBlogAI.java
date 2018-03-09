@@ -1,12 +1,15 @@
 package com.thebinarysoul.aiarticles.sites;
 
 import com.thebinarysoul.aiarticles.Article;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
+import javax.validation.constraints.Size;
 import java.util.List;
 
+@Slf4j
 public class MicrosoftBlogAI extends Site {
     @Override
     public List<Article> getArticles() {
@@ -20,7 +23,7 @@ public class MicrosoftBlogAI extends Site {
             list.add(new Article(title, url));
 
         } catch (Throwable e){
-            System.out.println("Failed parsing https://blogs.technet.microsoft.com/machinelearning \n\n" + e);
+            log.error("Failed parsing https://blogs.technet.microsoft.com/machinelearning: ", e);
         }
 
         return list;

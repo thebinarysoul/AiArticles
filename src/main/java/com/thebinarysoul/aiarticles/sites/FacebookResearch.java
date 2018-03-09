@@ -1,6 +1,7 @@
 package com.thebinarysoul.aiarticles.sites;
 
 import com.thebinarysoul.aiarticles.Article;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -8,6 +9,7 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.util.List;
 
+@Slf4j
 public class FacebookResearch extends Site{
     @Override
     public List<Article> getArticles() {
@@ -19,8 +21,8 @@ public class FacebookResearch extends Site{
             String title = elements.first().getElementsByTag("a").attr("title");
 
             list.add(new Article(title, url));
-        } catch (IOException e) {
-            System.out.println("Failed parsing https://research.googleblog.com \n\n" + e);
+        } catch (Throwable e) {
+            log.error("Failed parsing https://research.googleblog.com: ", e);
         }
 
         return list;

@@ -6,10 +6,11 @@ import lombok.NonNull;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
+import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.api.objects.Message;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -18,7 +19,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 public class AiArticles extends TelegramLongPollingBot {
-    private volatile String message = null;
+    private volatile String message;
     private final String token;
     private final String username;
     private final ExecutorService executorService;
@@ -27,24 +28,21 @@ public class AiArticles extends TelegramLongPollingBot {
     @NonNull
     private Map<String, Command> commands;
 
-    public AiArticles(String token, String username, ExecutorService executorService, DataTransfer data) {
+    AiArticles(String token, String username, ExecutorService executorService, DataTransfer data) {
         this.token = token;
         this.username = username;
         this.executorService = executorService;
         this.data = data;
     }
 
-    void init(String message) {
+    void init(String msg) {
+        log.info("trying to send a new message in: {}", LocalDateTime.now());
+        message = msg;
         List<String> users = data.getUsers().stream()
                 .map(String::valueOf)
                 .collect(Collectors.toList());
 
-        if(message == null){
-            users.forEach(user -> send(user, "Today no articles : ("));
-        } else {
-            users.forEach(this::send);
-        }
-
+        users.forEach(this::send);
     }
 
     @Override
@@ -70,14 +68,20 @@ public class AiArticles extends TelegramLongPollingBot {
     public String getBotToken() {
         return token;
     }
-    public synchronized void send(String chatId) {
-        if(message != null && !message.isEmpty()) {
-            send(chatId, message);
-        } else {
-            send(chatId, "Sorry, but the articles are not ready yet.");
-        }
+
+    public synchronized void sendByRequest(String chatId) {
+        String msg = Optional.ofNullable(message)
+                .filter(s -> !s.isEmpty())
+                .orElse("Sorry, but the articles are not ready yet. : (");
+
+        send(chatId, msg);
     }
 
+    public synchronized void send(String chatId) {
+        Optional.ofNullable(message)
+                .filter(s -> !s.isEmpty())
+                .ifPresent(s -> send(chatId, s));
+    }
 
     public synchronized void send(String chatId, String text) {
         SendMessage sendMessage = new SendMessage();

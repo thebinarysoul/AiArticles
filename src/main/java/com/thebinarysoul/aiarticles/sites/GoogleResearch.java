@@ -1,6 +1,7 @@
 package com.thebinarysoul.aiarticles.sites;
 
 import com.thebinarysoul.aiarticles.Article;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -8,6 +9,7 @@ import org.jsoup.select.Elements;
 
 import java.util.List;
 
+@Slf4j
 public class GoogleResearch extends Site {
     public List<Article> getArticles() {
         try {
@@ -18,7 +20,7 @@ public class GoogleResearch extends Site {
             String title = e.text();
             list.add(new Article(title, url));
         } catch (Throwable e){
-            System.out.println("Failed parsing https://research.googleblog.com \n\n" + e);
+            log.error("Failed parsing https://research.googleblog.com: ", e);
         }
 
         return list;

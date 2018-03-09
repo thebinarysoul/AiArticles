@@ -1,6 +1,7 @@
 package com.thebinarysoul.aiarticles.sites;
 
 import com.thebinarysoul.aiarticles.Article;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -9,6 +10,7 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.util.List;
 
+@Slf4j
 public class ElementAi extends Site {
     @Override
     public List<Article> getArticles() {
@@ -19,11 +21,11 @@ public class ElementAi extends Site {
             String url = postElement.child(2).attr("href");
             String title = postElement.child(1).text();
             if (url != null && url.length() > 8 && list.size() <= 5)
-                list.add(new Article(title, url));
+                list.add(new Article(title, "https://www.elementai.com".concat(url)));
 
 
-        } catch (IOException ioe) {
-            System.out.println("Failed connection");
+        } catch (Throwable e) {
+            log.error("https://www.elementai.com/en/news: ", e);
         }
         return list;
     }

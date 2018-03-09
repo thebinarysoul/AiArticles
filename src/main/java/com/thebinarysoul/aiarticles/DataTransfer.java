@@ -12,7 +12,7 @@ public class DataTransfer {
     private final UsersDao usersDao;
     private final ArticlesDao articlesDao;
 
-    public DataTransfer(UsersDao usersDao, ArticlesDao articlesDao) {
+   DataTransfer(UsersDao usersDao, ArticlesDao articlesDao) {
         this.usersDao = usersDao;
         this.articlesDao = articlesDao;
     }
@@ -28,8 +28,7 @@ public class DataTransfer {
     }
 
     public synchronized void addUser(long id) {
-        if (!usersDao.read(id).isPresent())
-            usersDao.save(id);
+        Option.ofOptional(usersDao.read(id)).onEmpty(() -> usersDao.save(id));
     }
 
     public List<Long> getUsers() {

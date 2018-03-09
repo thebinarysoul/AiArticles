@@ -1,12 +1,14 @@
 package com.thebinarysoul.aiarticles.sites;
 
 import com.thebinarysoul.aiarticles.Article;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 import java.util.List;
 
+@Slf4j
 public class OpenAI extends Site {
     @Override
     public List<Article> getArticles() {
@@ -21,7 +23,7 @@ public class OpenAI extends Site {
 
             list.add(new Article(title, url));
         } catch (Throwable e){
-            System.out.println("Failed parsing https://blog.openai.com \n\n" + e);
+            log.error("Failed parsing https://blog.openai.com: ", e);
         }
 
         return list;

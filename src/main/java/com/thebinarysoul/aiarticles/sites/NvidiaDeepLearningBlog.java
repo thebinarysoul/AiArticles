@@ -1,6 +1,7 @@
 package com.thebinarysoul.aiarticles.sites;
 
 import com.thebinarysoul.aiarticles.Article;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -8,6 +9,7 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.util.List;
 
+@Slf4j
 public class NvidiaDeepLearningBlog extends Site {
     @Override
     public List<Article> getArticles() {
@@ -22,8 +24,8 @@ public class NvidiaDeepLearningBlog extends Site {
 
             list.add(new Article(title, url));
 
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Throwable e) {
+            log.error("Failed parsing https://blogs.nvidia.com/blog/category/deep-learning: ", e);
         }
 
         return list;

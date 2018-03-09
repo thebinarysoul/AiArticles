@@ -1,47 +1,41 @@
 package com.thebinarysoul.aiarticles;
 
-import com.google.common.reflect.ClassPath;
 import com.thebinarysoul.aiarticles.sites.Site;
-import io.vavr.control.Try;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class ArticlesBuilder {
-    private List<Article> articles = new ArrayList<>();
     private final List<Site> sites;
     private final DataTransfer data;
 
-    ArticlesBuilder(List<Site> sites, DataTransfer data) {
+    ArticlesBuilder(java.util.List<Site> sites, DataTransfer data) {
         this.sites = sites;
         this.data = data;
     }
 
     public String build() {
+        List<Article> articles = new ArrayList<>();
         StringBuilder message = new StringBuilder();
-        sites.stream().forEach(s -> log.info(s.getClass().getSimpleName()));
+        sites.forEach(s -> log.info(s.getClass().getSimpleName()));
 
-        sites.forEach(s -> {
-            Article a = s.getArticles().get(0);
-            if(!data.hasArticle(a).isPresent() && articles.size() < 10){
-                articles.add(a);
-            }
-        });
+        sites.forEach(s ->
+                s.getArticles().stream()
+                        .findFirst()
+                        .filter(a -> !data.hasArticle(a).isPresent() && articles.size() < 10)
+                        .ifPresent(articles::add));
 
         if (articles.isEmpty()) return null;
 
         data.saveLinks(articles);
         message.append("Your articles today: " + "\n\n");
 
-        for (int i = 0; i < articles.size() && i <= 10; i++) {
-            message.append(i + 1 + ")  " + articles.get(i).getDescription() + "\n" + articles.get(i).getLink() + "\n\n");
-        }
+        io.vavr.collection.List.ofAll(articles)
+                .zipWithIndex()
+                .forEach(t -> message.append(String.format("%d )  %s\n %s\n\n", t._2 + 1, t._1.getDescription(), t._1.getLink())));
 
         return message.toString();
     }
-
-
 }
