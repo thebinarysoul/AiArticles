@@ -7,25 +7,23 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
-public class AiTrendsMachineLearning extends Site {
+public class DatumBox extends Site {
     @Override
     public List<Article> getArticles() {
         try {
-            Document document = Jsoup.connect("https://aitrends.com/category/machine-learning/")
-                    .timeout(30 * 1000 * 60)
-                    .get();
+            Document document = Jsoup.connect("http://blog.datumbox.com/")
+                    .timeout(0).get();
+            Elements elements = document.getElementsByTag("h2");
 
-            Elements elements = document.getElementsByTag("h3");
-
-            String title = elements.first().getElementsByTag("a").attr("title");
             String url = elements.first().getElementsByTag("a").attr("href");
+            String title = elements.first().getElementsByTag("a").attr("title");
 
             list.add(new Article(title, url));
+
         } catch (Throwable e) {
-            log.error("Failed parsing https://aitrends.com/category/machine-learning: ", e);
+            log.error("Failed parsing  http://blog.datumbox.com/: ", e);
         }
 
         return list;

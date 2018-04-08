@@ -7,25 +7,24 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
-public class AiTrendsMachineLearning extends Site {
+public class AIGeeks extends Site {
     @Override
     public List<Article> getArticles() {
         try {
-            Document document = Jsoup.connect("https://aitrends.com/category/machine-learning/")
-                    .timeout(30 * 1000 * 60)
-                    .get();
+            Document document = Jsoup.connect("http://theaigeek.com/")
+                    .timeout(0).get();
 
-            Elements elements = document.getElementsByTag("h3");
+            Elements elements = document.getElementsByAttributeValue("class", "entry-title");
 
-            String title = elements.first().getElementsByTag("a").attr("title");
             String url = elements.first().getElementsByTag("a").attr("href");
+            String title = elements.first().getElementsByTag("a").text();
 
             list.add(new Article(title, url));
+
         } catch (Throwable e) {
-            log.error("Failed parsing https://aitrends.com/category/machine-learning: ", e);
+            log.error("Failed parsing http://theaigeek.com/: ", e);
         }
 
         return list;

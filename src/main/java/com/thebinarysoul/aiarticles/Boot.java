@@ -59,7 +59,7 @@ public class Boot {
 
 
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-        scheduler.scheduleAtFixedRate(() -> bot.init(builder.build()), 0, 1, TimeUnit.DAYS);
+        scheduler.scheduleAtFixedRate(() -> bot.init(builder.build()), 0, config.getLong("aiArticles.schedule-time"), TimeUnit.HOURS);
     }
 
     private static String getConfig(String[] args) {
