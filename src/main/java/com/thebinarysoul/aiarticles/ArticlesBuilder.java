@@ -27,7 +27,10 @@ public class ArticlesBuilder {
                         .filter(a -> !data.hasArticle(a).isPresent() && articles.size() < 10)
                         .ifPresent(articles::add));
 
-        if (articles.isEmpty()) return null;
+        if (articles.isEmpty()) {
+            log.info("There are no new articles today.");
+            return null;
+        }
 
         data.saveLinks(articles);
         message.append("Your articles today: " + "\n\n");

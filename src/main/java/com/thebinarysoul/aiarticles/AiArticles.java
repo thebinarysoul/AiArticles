@@ -13,6 +13,7 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
@@ -36,13 +37,20 @@ public class AiArticles extends TelegramLongPollingBot {
     }
 
     void init(String msg) {
+        Optional.ofNullable(msg)
+                .filter(Objects::nonNull)
+                .map(m -> message = m)
+                .ifPresent(m -> sendToEveryOne());
+    }
+
+    private void sendToEveryOne() {
         log.info("trying to send a new message in: {}", LocalDateTime.now());
-        message = msg;
         List<String> users = data.getUsers().stream()
                 .map(String::valueOf)
                 .collect(Collectors.toList());
 
         users.forEach(this::send);
+        log.info("The new message was sent in: {}", LocalDateTime.now());
     }
 
     @Override
