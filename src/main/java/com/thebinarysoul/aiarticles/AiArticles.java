@@ -77,7 +77,7 @@ public class AiArticles extends TelegramLongPollingBot {
         return token;
     }
 
-    public synchronized void sendByRequest(String chatId) {
+    public void sendByRequest(String chatId) {
         String msg = Optional.ofNullable(message)
                 .filter(s -> !s.isEmpty())
                 .orElse("Sorry, but the articles are not ready yet. : (");
@@ -85,13 +85,13 @@ public class AiArticles extends TelegramLongPollingBot {
         send(chatId, msg);
     }
 
-    public synchronized void send(String chatId) {
+    public void send(String chatId) {
         Optional.ofNullable(message)
                 .filter(s -> !s.isEmpty())
                 .ifPresent(s -> send(chatId, s));
     }
 
-    public synchronized void send(String chatId, String text) {
+    public void send(String chatId, String text) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.enableMarkdown(false);
         sendMessage.disableWebPagePreview();
