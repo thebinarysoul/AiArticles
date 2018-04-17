@@ -21,7 +21,7 @@ public class ArticlesBuilder {
         StringBuilder message = new StringBuilder();
         sites.forEach(s -> log.info(s.getClass().getSimpleName()));
 
-        sites.forEach(s ->
+        sites.parallelStream().forEach(s ->
                 s.getArticles().stream()
                         .findFirst()
                         .filter(a -> !data.hasArticle(a).isPresent() && articles.size() < 10)
