@@ -32,6 +32,7 @@ public class ArticlesBuilder {
             return null;
         }
 
+        sites.forEach(a -> a.getArticles().clear());
         data.saveLinks(articles);
         message.append("Your articles today: " + "\n\n");
 
