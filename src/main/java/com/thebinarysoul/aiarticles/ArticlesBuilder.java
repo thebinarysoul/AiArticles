@@ -27,12 +27,13 @@ public class ArticlesBuilder {
                         .filter(a -> !data.hasArticle(a).isPresent() && articles.size() < 10)
                         .ifPresent(articles::add));
 
+        sites.forEach(s -> s.getArticles().clear());
+
         if (articles.isEmpty()) {
             log.info("There are no new articles today.");
             return null;
         }
 
-        sites.forEach(a -> a.getArticles().clear());
         data.saveLinks(articles);
         message.append("Your articles today: " + "\n\n");
 
