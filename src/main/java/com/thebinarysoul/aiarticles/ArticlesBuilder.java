@@ -19,8 +19,6 @@ public class ArticlesBuilder {
     public String build() {
         List<Article> articles = new ArrayList<>();
         StringBuilder message = new StringBuilder();
-        sites.forEach(s -> log.info(s.getClass().getSimpleName()));
-
         sites.parallelStream().forEach(s ->
                 s.getArticles().stream()
                         .findFirst()
@@ -33,6 +31,11 @@ public class ArticlesBuilder {
             log.info("There are no new articles today.");
             return null;
         }
+
+        log.info("Number of the articles: {}", articles.size());
+        articles.stream()
+                .map(Article::toString)
+                .forEach(log::info);
 
         data.saveLinks(articles);
         message.append("Your articles today: " + "\n\n");
