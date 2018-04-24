@@ -16,17 +16,18 @@ public class ElementAi extends Site {
     public List<Article> getArticles() {
         try {
             Document doc = Jsoup.connect("https://www.elementai.com/en/news").get();
-            Elements postElements = doc.getElementsByAttributeValue("class", "text-container");
-            Element postElement = postElements.get(1);
-            String url = postElement.child(2).attr("href");
-            String title = postElement.child(1).text();
-            if (url != null && url.length() > 8 && list.size() <= 5)
-                list.add(new Article(title, "https://www.elementai.com".concat(url)));
-
-
+            Elements elements = doc.getElementsByAttributeValue("class", "news-container");
+            String url = "https://www.elementai.com/en/news" + elements.first().getElementsByTag("a").first().attr("href");
+            String title = elements.first().getElementsByAttributeValue("class", "text-container").first().getElementsByTag("h3").first().text();
+            list.add(new Article(title, "https://www.elementai.com".concat(url)));
         } catch (Throwable e) {
             log.error("https://www.elementai.com/en/news: ", e);
         }
         return list;
+    }
+
+    public static void main(String[] args) {
+        ElementAi ai = new ElementAi();
+        System.out.println(ai.getArticles());
     }
 }
