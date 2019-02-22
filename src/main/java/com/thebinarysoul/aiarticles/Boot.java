@@ -13,7 +13,7 @@ import com.typesafe.config.ConfigFactory;
 import io.vavr.control.Try;
 import lombok.extern.slf4j.Slf4j;
 import org.telegram.telegrambots.ApiContextInitializer;
-import org.telegram.telegrambots.TelegramBotsApi;
+import org.telegram.telegrambots.meta.TelegramBotsApi;
 
 import javax.sql.DataSource;
 import java.nio.file.Path;

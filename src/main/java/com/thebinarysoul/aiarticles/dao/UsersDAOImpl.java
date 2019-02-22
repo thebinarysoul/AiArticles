@@ -1,10 +1,12 @@
 package com.thebinarysoul.aiarticles.dao;
 
-import io.vavr.control.Try;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.sql.DataSource;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -42,7 +44,7 @@ public class UsersDAOImpl implements UsersDao {
             ResultSet resultSet = statement.executeQuery();
 
             if(resultSet.next()){
-                return Optional.ofNullable(resultSet.getLong("chat_id"));
+                return Optional.of(resultSet.getLong("chat_id"));
             }
 
         } catch (SQLException e){

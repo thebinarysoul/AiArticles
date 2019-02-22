@@ -5,11 +5,13 @@ import io.vavr.control.Try;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.telegram.telegrambots.api.methods.send.SendMessage;
-import org.telegram.telegrambots.api.objects.Message;
-import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +55,13 @@ public class AiArticles extends TelegramLongPollingBot {
         log.info("The new message was sent in: {}", LocalDateTime.now());
     }
 
+
+    @Override
+    public void onUpdatesReceived(List<Update> updates) {
+
+    }
+
+
     @Override
     public void onUpdateReceived(Update update) {
         executorService.submit(() ->
@@ -65,7 +74,6 @@ public class AiArticles extends TelegramLongPollingBot {
                             commands.get(t._2).execute(String.valueOf(t._1));
                         }));
     }
-
 
     @Override
     public String getBotUsername() {
@@ -91,14 +99,14 @@ public class AiArticles extends TelegramLongPollingBot {
                 .ifPresent(s -> send(chatId, s));
     }
 
-    public void send(String chatId, String text) {
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.enableMarkdown(false);
-        sendMessage.disableWebPagePreview();
-        sendMessage.setChatId(chatId);
-        sendMessage.setText(text);
+    public void send(final String chatId, final String text) {
+        final SendMessage message = new SendMessage();
+        message.enableMarkdown(false);
+        message.disableWebPagePreview();
+        message.setChatId(chatId);
+        message.setText(text);
 
-        Try.of(() -> sendMessage(sendMessage))
+        Try.of(() -> execute(message))
                 .onFailure(e -> log.error("Error occurred sending of the message, Error: {}", e));
     }
 }

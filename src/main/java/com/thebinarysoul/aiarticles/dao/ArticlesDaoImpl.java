@@ -22,7 +22,7 @@ public class ArticlesDaoImpl implements ArticlesDao {
         try (Connection connection = dataSource.getConnection();
              Statement statement = connection.createStatement()) {
 
-            articles.stream()
+            articles
                     .forEach(s -> Try.run(() -> statement.addBatch("INSERT INTO articles (url) VALUE ('" + s + "');"))
                     .onFailure(e -> {
                         log.error("Error occurred during adding to batch: ", e);
@@ -44,7 +44,7 @@ public class ArticlesDaoImpl implements ArticlesDao {
             statement.setObject(1, article.getLink());
 
             if (statement.executeQuery().next()) {
-                return Optional.ofNullable(article);
+                return Optional.of(article);
             }
 
             return Optional.empty();
