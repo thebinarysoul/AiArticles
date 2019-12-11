@@ -39,10 +39,8 @@ public class AiArticles extends TelegramLongPollingBot {
     }
 
     void init(String msg) {
-        Optional.ofNullable(msg)
-                .filter(Objects::nonNull)
-                .map(m -> message = m)
-                .ifPresent(m -> sendToEveryOne());
+        message = msg;
+        sendToEveryOne();
     }
 
     private void sendToEveryOne() {

@@ -55,11 +55,11 @@ public class Boot {
 
         log.info("registration...");
         Try.of(() -> telegramBotsApi.registerBot(bot))
-                .onFailure(e -> log.error("Error occurred during registration of the bot, Error: {}", e));
+                .onFailure(e -> log.error("Error occurred during registration of the bot, Error: ", e));
 
 
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-        scheduler.scheduleAtFixedRate(() -> bot.init(builder.build()), 0, config.getLong("aiArticles.schedule-time"), TimeUnit.HOURS);
+        scheduler.scheduleAtFixedRate(() -> builder.build().ifPresent(bot::init), 0, config.getLong("aiArticles.schedule-time"), TimeUnit.HOURS);
     }
 
     private static String getConfig(String[] args) {
@@ -116,11 +116,11 @@ public class Boot {
                 .map(s -> s.substring(17))
                 .map(s ->
                         Try.of(() -> (Site) Class.forName(s).newInstance()).onFailure(e -> {
-                            log.error("Error occurred during sites initialization, Exception: {} ", e);
+                            log.error("Error occurred during sites initialization, Exception: ", e);
                             throw new RuntimeException();
                         }).get()
                 ).collect(Collectors.toList())).onFailure(e -> {
-            log.error("Error occurred during sites initialization, Exception: {} ", e);
+            log.error("Error occurred during sites initialization, Exception: ", e);
             throw new RuntimeException();
         }).get();
     }

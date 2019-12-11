@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 public class ArticlesBuilder {
@@ -16,7 +17,7 @@ public class ArticlesBuilder {
         this.data = data;
     }
 
-    public String build() {
+    public Optional<String> build() {
         List<Article> articles = new ArrayList<>();
         StringBuilder message = new StringBuilder();
         sites.parallelStream().forEach(s ->
@@ -29,7 +30,7 @@ public class ArticlesBuilder {
 
         if (articles.isEmpty()) {
             log.info("There are no new articles today.");
-            return null;
+            return Optional.empty();
         }
 
         log.info("Number of the articles: {}", articles.size());
@@ -44,6 +45,6 @@ public class ArticlesBuilder {
                 .zipWithIndex()
                 .forEach(t -> message.append(String.format("%d )  %s\n %s\n\n", t._2 + 1, t._1.getDescription(), t._1.getLink())));
 
-        return message.toString();
+        return Optional.of(message.toString());
     }
 }
